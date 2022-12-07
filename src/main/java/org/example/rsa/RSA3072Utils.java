@@ -1,8 +1,5 @@
-package org.example;
+package org.example.rsa;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -13,11 +10,14 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.Cipher;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import static org.example.Base64Utils.decodeBase64String;
+import static org.example.Base64Utils.encodeBase64String;
 
-public class RSACryptoUtils {
+/**
+ * 128-bit security strength
+ */
+public class RSA3072Utils {
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -66,27 +66,4 @@ public class RSACryptoUtils {
         return kf.generatePrivate(keySpec);
     }
 
-    public static String encodeBase64String(byte[] data) {
-        return Base64.encodeBase64String(data);
-    }
-
-    public static byte[] decodeBase64String(String data) {
-        return Base64.decodeBase64(data);
-    }
-
-    public static void main(String[] args) throws Exception {
-        KeyPair keyPair = generateKeyPair();
-
-        String msg = "Hello world";
-        // serialize key and store them
-        String publicKeyString = serializePublicKey(keyPair.getPublic());
-        String privateKeyString = serializePrivateKey(keyPair.getPrivate());
-        // deserialize key and use them
-        PublicKey publicKey = deserializePublicKey(publicKeyString);
-        PrivateKey privateKey = deserializePrivateKey(privateKeyString);
-
-        String cipherText = encrypt(msg.getBytes(StandardCharsets.UTF_8), publicKey);
-        String plainMsg = new String(decrypt(cipherText, privateKey), StandardCharsets.UTF_8);
-        System.out.println(plainMsg.equals(msg));
-    }
 }
