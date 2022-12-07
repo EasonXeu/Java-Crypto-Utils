@@ -1,13 +1,12 @@
-package org.example.ecies.common;
+package org.example.ecies.basic;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import static org.example.EncodeUtils.base64Encode;
 import org.example.ecies.ECKeyPairUtils;
 
 public class App {
@@ -16,7 +15,7 @@ public class App {
     }
 
     public static void main(String[] args) throws Exception {
-        String msg = "Hello=world";
+        String msg = "Hello world";
         KeyPair keyPair = ECKeyPairUtils.generateKeyPair();
         // serialize key and store them
         String publicKeyString = ECKeyPairUtils.serializePublicKey(keyPair.getPublic());
@@ -28,13 +27,13 @@ public class App {
         PublicKey publicKey = ECKeyPairUtils.deserializePublicKey(publicKeyString);
         PrivateKey privateKey = ECKeyPairUtils.deserializePrivateKey(privateKeyString);
 
-        String cipherText = CommonECIESUtils.encrypt(msg.getBytes(StandardCharsets.UTF_8), (BCECPublicKey) publicKey);
+        String cipherText = BasicECIESUtils.encrypt(msg.getBytes(StandardCharsets.UTF_8), publicKey);
         System.out.println(cipherText);
-        String plainMsg =
-            new String(CommonECIESUtils.decrypt(cipherText, (BCECPrivateKey) privateKey), StandardCharsets.UTF_8);
+        String plainMsg = new String(BasicECIESUtils.decrypt(cipherText, privateKey), StandardCharsets.UTF_8);
         System.out.println(plainMsg.equals(msg));
         System.out.println(plainMsg);
 
+        System.out.printf("%s - %s", base64Encode(msg.getBytes()).length(), cipherText.length());
     }
 
 }

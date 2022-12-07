@@ -1,4 +1,4 @@
-package org.example;
+package org.example.ecies.todo;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -15,23 +15,18 @@ import java.security.spec.ECPublicKeySpec;
 import javax.crypto.Cipher;
 import org.bouncycastle.crypto.EphemeralKeyPair;
 import org.bouncycastle.crypto.KeyEncoder;
-import org.bouncycastle.crypto.agreement.DHBasicAgreement;
 import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
-import org.bouncycastle.crypto.agreement.ECDHCBasicAgreement;
-import org.bouncycastle.crypto.agreement.ECDHCUnifiedAgreement;
 import org.bouncycastle.crypto.agreement.kdf.ConcatenationKDFGenerator;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.engines.IESEngine;
 import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
 import org.bouncycastle.crypto.generators.EphemeralKeyPairGenerator;
-import org.bouncycastle.crypto.generators.KDF2BytesGenerator;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECKeyGenerationParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
-import org.bouncycastle.crypto.params.IESWithCipherParameters;
 import org.bouncycastle.crypto.params.KDFParameters;
 import org.bouncycastle.crypto.util.DigestFactory;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.IESCipher;
@@ -40,6 +35,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECNamedCurveSpec;
 import org.bouncycastle.jce.spec.IESParameterSpec;
+import org.example.EncodeUtils;
 
 
 public class ECCCryptoUtils1 {
@@ -73,7 +69,6 @@ public class ECCCryptoUtils1 {
 //        GCMBlockCipher cipher=new G
 
 
-
 //        // Encrypt the buffer
 //        try
 //        {
@@ -90,7 +85,7 @@ public class ECCCryptoUtils1 {
 
     private static EphemeralKeyPair getEphemeralKeyPairGenerator(ECDomainParameters ecParams) {
         // Generate the ephemeral key pair
-        SecureRandom secureRandom=new SecureRandom();
+        SecureRandom secureRandom = new SecureRandom();
         ECKeyPairGenerator gen = new ECKeyPairGenerator();
         gen.init(new ECKeyGenerationParameters(ecParams, secureRandom));
         EphemeralKeyPairGenerator kGen = new EphemeralKeyPairGenerator(gen, new KeyEncoder() {
@@ -102,25 +97,26 @@ public class ECCCryptoUtils1 {
     }
 
     private static byte[][] generateSharedKey(byte[] secret) throws NoSuchAlgorithmException {
-        ConcatenationKDFGenerator kdf =new ConcatenationKDFGenerator(DigestFactory.createSHA256());
-        return getSharedSecretBytes(kdf, secret, null,secret.length * 8);
+        ConcatenationKDFGenerator kdf = new ConcatenationKDFGenerator(DigestFactory.createSHA256());
+        return getSharedSecretBytes(kdf, secret, null, secret.length * 8);
     }
 
 
-    private static byte[][] getSharedSecretBytes(ConcatenationKDFGenerator kdf, byte[] secret, String oidAlgorithm, int keySize)
+    private static byte[][] getSharedSecretBytes(ConcatenationKDFGenerator kdf, byte[] secret, String oidAlgorithm,
+                                                 int keySize)
         throws NoSuchAlgorithmException {
         if (keySize < 0) {
             throw new NoSuchAlgorithmException("unknown algorithm encountered: " + oidAlgorithm);
         }
-        byte[] k1 = new byte[keySize/8];
-        byte[] k2 = new byte[keySize/8];
+        byte[] k1 = new byte[keySize / 8];
+        byte[] k2 = new byte[keySize / 8];
         byte[] k = new byte[k1.length + k2.length];
         KDFParameters params = new KDFParameters(secret, null);
         kdf.init(params);
         kdf.generateBytes(k, 0, k.length);
         System.arraycopy(k, 0, k1, 0, k1.length);
         System.arraycopy(k, k1.length, k2, 0, k2.length);
-        byte[][] data={k1,k2};
+        byte[][] data = {k1, k2};
         return data;
 
     }
@@ -128,36 +124,36 @@ public class ECCCryptoUtils1 {
     public static byte[] decrypt(String cipherText, PrivateKey privateKey) throws Exception {
         byte[] nonce = new byte[16];
         new SecureRandom().nextBytes(nonce);
-        IESParameterSpec parameterSpec = new IESParameterSpec(null,null,16,16, nonce,false);
+        IESParameterSpec parameterSpec = new IESParameterSpec(null, null, 16, 16, nonce, false);
         IESEngine iesEngine = new IESEngine(new ECDHBasicAgreement(),
             new ConcatenationKDFGenerator(DigestFactory.createSHA256()),
             new HMac(DigestFactory.createSHA256()),
             new PaddedBufferedBlockCipher(new AESEngine()));
-        byte[] msg=Base64Utils.decodeBase64String(cipherText);
+        byte[] msg = EncodeUtils.base64Decode(cipherText);
         IESCipher iesCipher = new IESCipher(iesEngine, 16);
-        iesCipher.engineInit(Cipher.DECRYPT_MODE, privateKey,parameterSpec,new SecureRandom());
-        return iesCipher.engineDoFinal(msg,0,msg.length);
+        iesCipher.engineInit(Cipher.DECRYPT_MODE, privateKey, parameterSpec, new SecureRandom());
+        return iesCipher.engineDoFinal(msg, 0, msg.length);
     }
 
 
-    public static PublicKey deserializePublicKeyFromNumber(String numGx,String numGy) throws Exception{
+    public static PublicKey deserializePublicKeyFromNumber(String numGx, String numGy) throws Exception {
         BigInteger gx = new BigInteger(numGx);
         BigInteger gy = new BigInteger(numGy);
-        ECPoint ecPoint=new ECPoint(gx, gy);
+        ECPoint ecPoint = new ECPoint(gx, gy);
 
         KeyFactory kf = KeyFactory.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec(CURVE);
         ECNamedCurveSpec params = new ECNamedCurveSpec(CURVE, spec.getCurve(), spec.getG(), spec.getN());
-        ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(ecPoint,params);
+        ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(ecPoint, params);
         return kf.generatePublic(ecPublicKeySpec);
     }
 
-    public static PrivateKey deserializePrivateKeyFromNumber(String d) throws Exception{
+    public static PrivateKey deserializePrivateKeyFromNumber(String d) throws Exception {
         BigInteger k = new BigInteger(d);
         KeyFactory kf = KeyFactory.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec(CURVE);
-        ECParameterSpec ecParameterSpec = new ECNamedCurveSpec(CURVE, spec.getCurve(),spec.getG(),spec.getN());
-        ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(k,ecParameterSpec);
+        ECParameterSpec ecParameterSpec = new ECNamedCurveSpec(CURVE, spec.getCurve(), spec.getG(), spec.getN());
+        ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(k, ecParameterSpec);
         return kf.generatePrivate(ecPrivateKeySpec);
     }
 
@@ -178,6 +174,7 @@ public class ECCCryptoUtils1 {
     }
 
     public static void main(String[] args) throws Exception {
-        test2("BI8Tjc566267CMs/w4oqcE4am6mlLS+rg4rEmo0xY7499PDcRcMo05MV0CU3PAYpRQcZU4KAqSVsqGvGiZaPY5GzBqFPBTmS0m+GXcwIoR7PDu/7oa+7XTby+L3kUEbjxLi8C1ezpLCBOMaNUKz+CIJ1EVKfK3SevbLz5g");
+        test2(
+            "BI8Tjc566267CMs/w4oqcE4am6mlLS+rg4rEmo0xY7499PDcRcMo05MV0CU3PAYpRQcZU4KAqSVsqGvGiZaPY5GzBqFPBTmS0m+GXcwIoR7PDu/7oa+7XTby+L3kUEbjxLi8C1ezpLCBOMaNUKz+CIJ1EVKfK3SevbLz5g");
     }
 }

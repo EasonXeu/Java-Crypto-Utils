@@ -26,10 +26,16 @@ public class AES128Utils {
         return keyGenerator.generateKey();
     }
 
-    public static IvParameterSpec generateIv() {
+    public static IvParameterSpec generateIvParamSpec() {
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
         return new IvParameterSpec(iv);
+    }
+
+    public static byte[] generateIv() {
+        byte[] iv = new byte[16];
+        new SecureRandom().nextBytes(iv);
+        return iv;
     }
 
     public static String encrypt(byte[] plainText, SecretKey key, IvParameterSpec ivParameterSpec) throws Exception {
@@ -39,7 +45,7 @@ public class AES128Utils {
         return Base64.encodeBase64String(encryptedBytes);
     }
 
-    public static byte[] decrypt(String cipherText, SecretKey key,  IvParameterSpec ivParameterSpec) throws Exception {
+    public static byte[] decrypt(String cipherText, SecretKey key, IvParameterSpec ivParameterSpec) throws Exception {
         Cipher cipher = Cipher.getInstance(TRANSFORMATION, BouncyCastleProvider.PROVIDER_NAME);
         byte[] cipherData = Base64.decodeBase64(cipherText);
         cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);

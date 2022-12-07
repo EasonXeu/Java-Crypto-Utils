@@ -11,8 +11,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.Cipher;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import static org.example.Base64Utils.decodeBase64String;
-import static org.example.Base64Utils.encodeBase64String;
+import static org.example.EncodeUtils.base64Decode;
+import static org.example.EncodeUtils.base64Encode;
 
 /**
  * 128-bit security strength
@@ -31,38 +31,39 @@ public class RSA3072Utils {
         Cipher cipher = Cipher.getInstance(TRANSFORMATION, BouncyCastleProvider.PROVIDER_NAME);
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encrypted = cipher.doFinal(plainText);
-        return encodeBase64String(encrypted);
+        return base64Encode(encrypted);
     }
 
     public static byte[] decrypt(String cipherText, PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance(TRANSFORMATION, BouncyCastleProvider.PROVIDER_NAME);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        return cipher.doFinal(decodeBase64String(cipherText));
+        return cipher.doFinal(base64Decode(cipherText));
     }
 
     public static KeyPair generateKeyPair() throws Exception {
-        KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance(RSA_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
+        KeyPairGenerator keyGenerator =
+            KeyPairGenerator.getInstance(RSA_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
         keyGenerator.initialize(RSA_MODULE_SIZE);
         return keyGenerator.generateKeyPair();
     }
 
     public static String serializePublicKey(PublicKey publicKey) {
-        return encodeBase64String(publicKey.getEncoded());
+        return base64Encode(publicKey.getEncoded());
     }
 
     public static String serializePrivateKey(PrivateKey privateKey) {
-        return encodeBase64String(privateKey.getEncoded());
+        return base64Encode(privateKey.getEncoded());
     }
 
-    public static PublicKey deserializePublicKey(String publicKeyString) throws Exception{
+    public static PublicKey deserializePublicKey(String publicKeyString) throws Exception {
         KeyFactory kf = KeyFactory.getInstance(RSA_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
-        EncodedKeySpec keySpec = new X509EncodedKeySpec(decodeBase64String(publicKeyString));
+        EncodedKeySpec keySpec = new X509EncodedKeySpec(base64Decode(publicKeyString));
         return kf.generatePublic(keySpec);
     }
 
-    public static PrivateKey deserializePrivateKey(String publicKeyString) throws Exception{
+    public static PrivateKey deserializePrivateKey(String publicKeyString) throws Exception {
         KeyFactory kf = KeyFactory.getInstance(RSA_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
-        EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodeBase64String(publicKeyString));
+        EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(base64Decode(publicKeyString));
         return kf.generatePrivate(keySpec);
     }
 

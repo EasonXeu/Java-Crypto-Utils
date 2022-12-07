@@ -1,27 +1,26 @@
 package org.example;
 
-import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
-public class Base64Utils {
+public class EncodeUtils {
 
-    public static String encodeBase64String(byte[] data) {
+    public static String base64Encode(byte[] data) {
         return Base64.encodeBase64String(data);
     }
 
-    public static byte[] decodeBase64String(String data) {
+    public static byte[] base64Decode(String data) {
         return Base64.decodeBase64(data);
     }
 
-    public static String encodeHexString(byte[] data) {
+    public static String hexEncode(byte[] data) {
         return Hex.encodeHexString(data);
     }
 
-    public static byte[] decodeHexString(String data)  {
+    public static byte[] hexDecode(String data) {
         try {
             return Hex.decodeHex(data);
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
