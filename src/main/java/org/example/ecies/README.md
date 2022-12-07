@@ -13,3 +13,5 @@ In the current package ecies, we have three kinds of implementations.
 For the basic package, it is the simplest implementation, just for test, it is not recommended
 For the common package, it is the most useful implementation, recommended.
 For the custom package, it is for the case where we have to write the ECIES framework by ourselves.
+
+About the ECIES, refer to this [book](https://cryptobook.nakov.com/asymmetric-key-ciphers/ecies-public-key-encryption)
