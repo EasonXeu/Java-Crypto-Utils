@@ -1,17 +1,11 @@
 package org.example.ecies.todo;
 
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.ECPrivateKeySpec;
-import java.security.spec.ECPublicKeySpec;
 import javax.crypto.Cipher;
 import org.bouncycastle.crypto.EphemeralKeyPair;
 import org.bouncycastle.crypto.KeyEncoder;
@@ -30,12 +24,10 @@ import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.params.KDFParameters;
 import org.bouncycastle.crypto.util.DigestFactory;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.IESCipher;
-import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.bouncycastle.jce.spec.ECNamedCurveSpec;
 import org.bouncycastle.jce.spec.IESParameterSpec;
 import org.example.EncodeUtils;
+import static org.example.ecies.ECKeyPairUtils.deserializePrivateKeyFromNumber;
 
 
 public class ECCCryptoUtils1 {
@@ -133,28 +125,6 @@ public class ECCCryptoUtils1 {
         IESCipher iesCipher = new IESCipher(iesEngine, 16);
         iesCipher.engineInit(Cipher.DECRYPT_MODE, privateKey, parameterSpec, new SecureRandom());
         return iesCipher.engineDoFinal(msg, 0, msg.length);
-    }
-
-
-    public static PublicKey deserializePublicKeyFromNumber(String numGx, String numGy) throws Exception {
-        BigInteger gx = new BigInteger(numGx);
-        BigInteger gy = new BigInteger(numGy);
-        ECPoint ecPoint = new ECPoint(gx, gy);
-
-        KeyFactory kf = KeyFactory.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec(CURVE);
-        ECNamedCurveSpec params = new ECNamedCurveSpec(CURVE, spec.getCurve(), spec.getG(), spec.getN());
-        ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(ecPoint, params);
-        return kf.generatePublic(ecPublicKeySpec);
-    }
-
-    public static PrivateKey deserializePrivateKeyFromNumber(String d) throws Exception {
-        BigInteger k = new BigInteger(d);
-        KeyFactory kf = KeyFactory.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec(CURVE);
-        ECParameterSpec ecParameterSpec = new ECNamedCurveSpec(CURVE, spec.getCurve(), spec.getG(), spec.getN());
-        ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(k, ecParameterSpec);
-        return kf.generatePrivate(ecPrivateKeySpec);
     }
 
 
