@@ -6,7 +6,7 @@ import org.apache.commons.codec.binary.Hex;
 public class EncodeUtils {
 
     public static String base64Encode(byte[] data) {
-        return Base64.encodeBase64String(data);
+        return Base64.encodeBase64URLSafeString(data);
     }
 
     public static byte[] base64Decode(String data) {

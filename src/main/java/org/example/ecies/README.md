@@ -14,4 +14,9 @@ For the basic package, it is the simplest implementation, just for test, it is n
 For the common package, it is the most useful implementation, recommended.
 For the custom package, it is for the case where we have to write the ECIES framework by ourselves.
 
+About the ISO 18033/P1363a, refer to
+this [PDF](https://perso.telecom-paristech.fr/guilley/recherche/cryptoprocesseurs/ieee/00891000.pdf)
+
+About the Shoup version (ECIES-KEM), refer to this [PDF](https://www.shoup.net/papers/iso-2_1.pdf)
+
 About the ECIES, refer to this [book](https://cryptobook.nakov.com/asymmetric-key-ciphers/ecies-public-key-encryption)

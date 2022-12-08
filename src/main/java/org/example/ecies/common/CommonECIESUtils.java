@@ -9,6 +9,7 @@ import org.bouncycastle.crypto.engines.IESEngine;
 import org.bouncycastle.crypto.generators.KDF2BytesGenerator;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.paddings.PKCS7Padding;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.util.DigestFactory;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
@@ -55,7 +56,7 @@ public class CommonECIESUtils {
                 new ECDHBasicAgreement(),
                 new KDF2BytesGenerator(new SHA256Digest()),
                 new HMac(DigestFactory.createSHA256()),
-                new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()))), 0);
+                new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding())), 0);
         return cipher;
     }
 
