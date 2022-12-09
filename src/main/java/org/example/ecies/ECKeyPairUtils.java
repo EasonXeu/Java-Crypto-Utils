@@ -6,6 +6,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
@@ -14,14 +15,21 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECNamedCurveSpec;
+import org.bouncycastle.util.BigIntegers;
+import org.example.EncodeUtils;
 import static org.example.EncodeUtils.base64Decode;
 import static org.example.EncodeUtils.base64Encode;
 
 public class ECKeyPairUtils {
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     public static final String EC_ALGORITHM_NAME = "EC";
     public static final String CURVE = "secp256k1";
@@ -32,8 +40,6 @@ public class ECKeyPairUtils {
             KeyPairGenerator.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
         keyGenerator.initialize(new ECGenParameterSpec(CURVE));
         KeyPair keyPair = keyGenerator.generateKeyPair();
-        System.out.println(keyPair.getPublic().toString());
-        System.out.println(keyPair.getPrivate().toString());
         return keyPair;
     }
 
@@ -75,6 +81,14 @@ public class ECKeyPairUtils {
         ECParameterSpec ecParameterSpec = new ECNamedCurveSpec(CURVE, spec.getCurve(), spec.getG(), spec.getN());
         ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(k, ecParameterSpec);
         return kf.generatePrivate(ecPrivateKeySpec);
+    }
+
+    public static void main(String[] args) throws Exception {
+        KeyPair keyPair = generateKeyPair();
+        BCECPublicKey publicKey = (BCECPublicKey) keyPair.getPublic();
+        BCECPrivateKey privateKey = (BCECPrivateKey) keyPair.getPrivate();
+        System.out.println(EncodeUtils.base64Encode(BigIntegers.asUnsignedByteArray(privateKey.getD())));
+        System.out.println(EncodeUtils.base64Encode(publicKey.getQ().getEncoded(false)));
     }
 
 
