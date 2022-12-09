@@ -1,6 +1,5 @@
 package org.example.ecies.todo;
 
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -27,7 +26,6 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.IESCipher;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.IESParameterSpec;
 import org.example.EncodeUtils;
-import static org.example.ecies.ECKeyPairUtils.deserializePrivateKeyFromNumber;
 
 
 public class ECCCryptoUtils1 {
@@ -127,24 +125,24 @@ public class ECCCryptoUtils1 {
         return iesCipher.engineDoFinal(msg, 0, msg.length);
     }
 
-
-    private static void test2(String cipherText) throws Exception {
-
-//        PublicKey publicKey = deserializePublicKeyFromNumber(
-//            "",
-//            "");
-
-        PrivateKey privateKey = deserializePrivateKeyFromNumber(
-            "31982473480693604137567984429316334185194099694227245800857878042731418965199");
-
-        String plainMsg = new String(decrypt(cipherText, privateKey), StandardCharsets.UTF_8);
-        System.out.println(plainMsg);
-
-        System.out.printf("%s - %s", plainMsg.length(), cipherText.length());
-    }
+//
+//    private static void test2(String cipherText) throws Exception {
+//
+////        PublicKey publicKey = deserializePublicKeyFromNumber(
+////            "",
+////            "");
+//
+//        PrivateKey privateKey = deserializePrivateKeyFromNumber(
+//            "31982473480693604137567984429316334185194099694227245800857878042731418965199");
+//
+//        String plainMsg = new String(decrypt(cipherText, privateKey), StandardCharsets.UTF_8);
+//        System.out.println(plainMsg);
+//
+//        System.out.printf("%s - %s", plainMsg.length(), cipherText.length());
+//    }
 
     public static void main(String[] args) throws Exception {
-        test2(
-            "BI8Tjc566267CMs/w4oqcE4am6mlLS+rg4rEmo0xY7499PDcRcMo05MV0CU3PAYpRQcZU4KAqSVsqGvGiZaPY5GzBqFPBTmS0m+GXcwIoR7PDu/7oa+7XTby+L3kUEbjxLi8C1ezpLCBOMaNUKz+CIJ1EVKfK3SevbLz5g");
+//        test2(
+//            "BI8Tjc566267CMs/w4oqcE4am6mlLS+rg4rEmo0xY7499PDcRcMo05MV0CU3PAYpRQcZU4KAqSVsqGvGiZaPY5GzBqFPBTmS0m+GXcwIoR7PDu/7oa+7XTby+L3kUEbjxLi8C1ezpLCBOMaNUKz+CIJ1EVKfK3SevbLz5g");
     }
 }
