@@ -22,7 +22,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECNamedCurveSpec;
 import org.bouncycastle.util.BigIntegers;
-import org.example.EncodeUtils;
 import static org.example.EncodeUtils.base64Decode;
 import static org.example.EncodeUtils.base64Encode;
 
@@ -63,7 +62,7 @@ public class ECKeyPairUtils {
         return kf.generatePrivate(keySpec);
     }
 
-    public static PublicKey deserializePublicKeyFromNumber(String numGx, String numGy) throws Exception {
+    public static PublicKey deserializePublicKeyInBigIntFormat(String numGx, String numGy) throws Exception {
         BigInteger gx = new BigInteger(numGx, 10);
         BigInteger gy = new BigInteger(numGy, 10);
         ECPoint ecPoint = new ECPoint(gx, gy);
@@ -74,7 +73,7 @@ public class ECKeyPairUtils {
         return kf.generatePublic(ecPublicKeySpec);
     }
 
-    public static PrivateKey deserializePrivateKeyFromNumber(String d) throws Exception {
+    public static PrivateKey deserializePrivateKeyInBigIntFormat(String d) throws Exception {
         BigInteger k = new BigInteger(d, 10);
         KeyFactory kf = KeyFactory.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec(CURVE);
@@ -83,12 +82,51 @@ public class ECKeyPairUtils {
         return kf.generatePrivate(ecPrivateKeySpec);
     }
 
+    // following is to store the key pair in bigint format
+    public static byte[] serializePrivateKeyInBigIntFormat(BCECPrivateKey privateKey) throws Exception {
+        return BigIntegers.asUnsignedByteArray(privateKey.getD());
+    }
+
+    public static byte[] serializePublicKeyInBigIntFormat(BCECPublicKey publicKey) throws Exception {
+        return publicKey.getQ().getEncoded(false);
+    }
+
+    public static BCECPublicKey deserializePublicKeyInBigIntFormat(byte[] encodedPoint) throws Exception {
+        BigInteger x = BigIntegers.fromUnsignedByteArray(encodedPoint, 1, 32);
+        BigInteger y = BigIntegers.fromUnsignedByteArray(encodedPoint, 33, 32);
+
+        KeyFactory kf = KeyFactory.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
+        ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(new ECPoint(x, y), getECNamedCurveSpec());
+        return (BCECPublicKey) kf.generatePublic(ecPublicKeySpec);
+    }
+
+    public static BCECPublicKey deserializePublicKeyInBigIntFormat(byte[] px, byte[] py) throws Exception {
+        BigInteger x = BigIntegers.fromUnsignedByteArray(px);
+        BigInteger y = BigIntegers.fromUnsignedByteArray(py);
+
+        KeyFactory kf = KeyFactory.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
+        ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(new ECPoint(x, y), getECNamedCurveSpec());
+        return (BCECPublicKey) kf.generatePublic(ecPublicKeySpec);
+    }
+
+    public static BCECPrivateKey deserializePrivateKeyInBigIntFormat(byte[] d) throws Exception {
+        BigInteger k = BigIntegers.fromUnsignedByteArray(d);
+        KeyFactory kf = KeyFactory.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
+        ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(k, getECNamedCurveSpec());
+        return (BCECPrivateKey) kf.generatePrivate(ecPrivateKeySpec);
+    }
+
+    public static ECNamedCurveSpec getECNamedCurveSpec() {
+        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec(CURVE);
+        return new ECNamedCurveSpec(CURVE, spec.getCurve(), spec.getG(), spec.getN());
+    }
+
+    public static void test() throws Exception {
+
+    }
+
     public static void main(String[] args) throws Exception {
-        KeyPair keyPair = generateKeyPair();
-        BCECPublicKey publicKey = (BCECPublicKey) keyPair.getPublic();
-        BCECPrivateKey privateKey = (BCECPrivateKey) keyPair.getPrivate();
-        System.out.println(EncodeUtils.base64Encode(BigIntegers.asUnsignedByteArray(privateKey.getD())));
-        System.out.println(EncodeUtils.base64Encode(publicKey.getQ().getEncoded(false)));
+        test();
     }
 
 
