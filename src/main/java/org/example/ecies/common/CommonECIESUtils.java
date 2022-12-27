@@ -24,16 +24,16 @@ import org.example.ecies.custom.impl.AESGCMBlockCipher;
  */
 public class CommonECIESUtils {
 
-//    private static final byte[] NONCE = EncodeUtils.hexDecode("2444f613b113ba893e087e020a69104885");
-//    private static final IESParameterSpec IES_PARAMETER_SPEC =
-//        new IESParameterSpec(null, null, 128, 128, Arrays.copyOfRange(NONCE, 0, 16));
+//    private static final byte[] NONCE = new byte[16];
+//    private static final IESParameterSpec IES_PARAMETER_SPEC_FOR_AES_GCM =
+//        new IESParameterSpec(null, null, 128, 128, Arrays.copyOfRange(NONCE, 0, 12));
 
-    private static final IESParameterSpec IES_PARAMETER_SPEC =
+    private static final IESParameterSpec IES_PARAMETER_SPEC_FOR_AES_CBC =
         new IESParameterSpec(null, null, 128, 128, null);
 
     public static String encrypt(byte[] plainText, BCECPublicKey publicKey) throws Exception {
         IESCipher cipher = getIESCipher();
-        cipher.engineInit(Cipher.ENCRYPT_MODE, publicKey, IES_PARAMETER_SPEC, new SecureRandom());
+        cipher.engineInit(Cipher.ENCRYPT_MODE, publicKey, IES_PARAMETER_SPEC_FOR_AES_CBC, new SecureRandom());
         byte[] cipherResult = cipher.engineDoFinal(plainText, 0, plainText.length);
         return EncodeUtils.base64Encode(cipherResult);
     }
@@ -41,7 +41,7 @@ public class CommonECIESUtils {
     public static byte[] decrypt(String cipherText, BCECPrivateKey privateKey) throws Exception {
         byte[] cipherBytes = EncodeUtils.base64Decode(cipherText);
         IESCipher cipher = getIESCipher();
-        cipher.engineInit(Cipher.DECRYPT_MODE, privateKey, IES_PARAMETER_SPEC, new SecureRandom());
+        cipher.engineInit(Cipher.DECRYPT_MODE, privateKey, IES_PARAMETER_SPEC_FOR_AES_CBC, new SecureRandom());
         return cipher.engineDoFinal(cipherBytes, 0, cipherBytes.length);
     }
 
@@ -67,7 +67,7 @@ public class CommonECIESUtils {
                 new ECDHBasicAgreement(),
                 new KDF2BytesGenerator(new SHA256Digest()),
                 new HMac(DigestFactory.createSHA256()),
-                new AESGCMBlockCipher()), 16);
+                new AESGCMBlockCipher()), 12);
         return cipher;
     }
 
